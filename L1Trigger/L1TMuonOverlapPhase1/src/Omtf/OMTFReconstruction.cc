@@ -212,7 +212,8 @@ void OMTFReconstruction::addObservers(
     if (edmParameterSet.exists("dumpHitsToROOT") && edmParameterSet.getParameter<bool>("dumpHitsToROOT")) {
       //std::string rootFileName = edmParameterSet.getParameter<std::string>("dumpHitsFileName");
       if (candidateSimMuonMatcher == nullptr) {
-        edm::LogVerbatim("OMTFReconstruction") << "dumpHitsToROOT needs candidateSimMuonMatcher, but it is null " << std::endl;
+        edm::LogVerbatim("OMTFReconstruction")
+            << "dumpHitsToROOT needs candidateSimMuonMatcher, but it is null " << std::endl;
         throw cms::Exception("dumpHitsToROOT needs candidateSimMuonMatcher, but it is null");
       }
       observers.emplace_back(

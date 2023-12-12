@@ -86,7 +86,7 @@ void XMLEventWriter::observeProcesorEmulation(unsigned int iProcessor,
       //for the CSC and RPC 1 means the hit is valid, 0 - not.
       //in the input it is still worth to have the actual quality of the CSC and RPC
       //Because it might be used in the neural network
-      if(iLayer >= 6)
+      if (iLayer >= 6)
         hitTree.add("<xmlattr>.iQual", 1);
       else
         hitTree.add("<xmlattr>.iQual", input->getHitQual(iLayer, iHit));

@@ -65,7 +65,7 @@ int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, int dtScN
   int sector = dtScNum + 1;  //NOTE: there is a inconsistency in DT sector numb. Thus +1 needed to get detector numb.
 
   double scale = 1. / dtPhiBins / hsPhiPitch;
-  int scale_coeff = lround(scale * pow(2, 11)); // 216.2688
+  int scale_coeff = lround(scale * pow(2, 11));  // 216.2688
 
   int ichamber = sector - 1;
   if (ichamber > 6)

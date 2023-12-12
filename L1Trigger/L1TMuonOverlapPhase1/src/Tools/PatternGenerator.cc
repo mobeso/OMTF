@@ -284,8 +284,9 @@ void PatternGenerator::updateStatUsingMatcher2() {
           }
 
           if (refPhiBShifted < 0 || refPhiBShifted >= (int)exptCandGp->getStatistics()[0][refLayer][0].size()) {
-            edm::LogImportant("l1tOmtfEventPrint") << "\n"<< __FUNCTION__ << ": " << __LINE__
-                << " wrong refPhiB " << refPhiB<<" refPhiBShifted "<<refPhiBShifted;
+            edm::LogImportant("l1tOmtfEventPrint") << "\n"
+                                                   << __FUNCTION__ << ": " << __LINE__ << " wrong refPhiB " << refPhiB
+                                                   << " refPhiBShifted " << refPhiBShifted;
             continue;
           }
 
@@ -379,8 +380,6 @@ void PatternGenerator::endJob() {
       if (gp->key().thePt == 0)
         continue;
 
-
-
       for (unsigned int iLayer = 0; iLayer < gp->getPdf().size(); ++iLayer) {
         for (unsigned int iRefLayer = 0; iRefLayer < gp->getPdf()[iLayer].size(); ++iRefLayer) {
           ostrName.str("");
@@ -390,13 +389,12 @@ void PatternGenerator::endJob() {
           TH1I* histLayerStat = (TH1I*)curDir->Get(ostrName.str().c_str());
 
           if (histLayerStat) {
-            int statBinsCnt = 1024 *2;
-            if((int)(gp->getStatistics()[iLayer][iRefLayer].size()) != histLayerStat->GetNbinsX()) {
+            int statBinsCnt = 1024 * 2;
+            if ((int)(gp->getStatistics()[iLayer][iRefLayer].size()) != histLayerStat->GetNbinsX()) {
               statBinsCnt = histLayerStat->GetNbinsX();
               gp->iniStatisitics(statBinsCnt, 1);  //TODO
               edm::LogImportant("l1tOmtfEventPrint")
-                              << "PatternGenerator::endJob() - "<< ostrName.str()<<"statBinsCnt = " << statBinsCnt
-                              << std::endl;
+                  << "PatternGenerator::endJob() - " << ostrName.str() << "statBinsCnt = " << statBinsCnt << std::endl;
             }
 
             for (int iBin = 0; iBin < statBinsCnt; iBin++) {
@@ -470,23 +468,23 @@ void PatternGenerator::upadatePdfs() {
         //watch out - the pt here is the hardware pt before the recalibration
         //the shift for given pattern and layer should be the same same for all refLayers
         //otherwise the firmware does not compile - at least the phase-1
-        if ((gp->key().thePt <= 10) && (iLayer == 1 || iLayer == 3 || iLayer == 5) ) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
+        if ((gp->key().thePt <= 10) &&
+            (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        } else if ((gp->key().thePt >= 11 && gp->key().thePt <= 17) && (iLayer == 1))  {//MB1 phiB
+        } else if ((gp->key().thePt >= 11 && gp->key().thePt <= 17) && (iLayer == 1)) {  //MB1 phiB
           //due to grouping the patterns 4-7, the pdfs for the layer 1 in the pattern go outside of the range
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
-        } else if ((gp->key().thePt >= 11 && gp->key().thePt <= 17) && (iLayer == 3 || iLayer == 5))  {//MB1 phiB
+        } else if ((gp->key().thePt >= 11 && gp->key().thePt <= 17) && (iLayer == 3 || iLayer == 5)) {  //MB1 phiB
           //due to grouping the patterns 4-7, the pdfs for the layer 1 in the pattern go outside of the range
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        }
-        else
+        } else
           gp->setDistPhiBitShift(0, iLayer, iRefLayer);
 
-/*
+        /*
         if ((gp->key().thePt <= 10) && (iLayer == 1) ) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && ( (iRefLayer == 0 || iRefLayer == 2) && (iLayer == 1 || iLayer == 3))) {  //iRefLayer: MB1, MB2, iLayer: MB1 and MB2 phiB
@@ -585,7 +583,7 @@ void PatternGenerator::upadatePdfs() {
           for (unsigned int i = 0; i < patternGroups[iGroup].size(); i++) {
             auto gp = goldenPatterns.at(patternGroups[iGroup][i]).get();
             if (gp->meanDistPhiValue(iLayer, iRefLayer) != 0) {
-              double weight = 1./gp->key().thePt;
+              double weight = 1. / gp->key().thePt;
               meanDistPhi += weight * gp->meanDistPhiValue(iLayer, iRefLayer);
               mergedCnt++;
               norm += weight;

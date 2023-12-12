@@ -287,15 +287,17 @@ std::vector<const l1t::RegionalMuonCand*> CandidateSimMuonMatcher::ghostBust(
     }
 
     if (mtfCands->at(0, i1).hwPt()) {
-      LogTrace("l1tOmtfEventPrint")
-          << "CandidateSimMuonMatcher::ghostBust\n  regionalCand pt " << std::setw(3) << mtfCands->at(0, i1).hwPt()
-          << " qual " << std::setw(2) << mtfCands->at(0, i1).hwQual() << " proc " << std::setw(2)
-          << mtfCands->at(0, i1).processor() << " eta " << std::setw(4) << mtfCands->at(0, i1).hwEta() << " gloablEta "
-          << std::setw(8) << mtfCands->at(0, i1).hwEta() * 0.010875 << " hwPhi " << std::setw(3)
-          << mtfCands->at(0, i1).hwPhi() << " globalPhi " << std::setw(8)
-          << hwGmtPhiToGlobalPhi(omtfConfig->calcGlobalPhi(mtfCands->at(0, i1).hwPhi(), mtfCands->at(0, i1).processor()))
-          << " fireadLayers " << std::bitset<18>(mtfCands->at(0, i1).trackAddress().at(0)) << " gb isKilled "
-          << isKilled.test(i1) << std::endl;
+      LogTrace("l1tOmtfEventPrint") << "CandidateSimMuonMatcher::ghostBust\n  regionalCand pt " << std::setw(3)
+                                    << mtfCands->at(0, i1).hwPt() << " qual " << std::setw(2)
+                                    << mtfCands->at(0, i1).hwQual() << " proc " << std::setw(2)
+                                    << mtfCands->at(0, i1).processor() << " eta " << std::setw(4)
+                                    << mtfCands->at(0, i1).hwEta() << " gloablEta " << std::setw(8)
+                                    << mtfCands->at(0, i1).hwEta() * 0.010875 << " hwPhi " << std::setw(3)
+                                    << mtfCands->at(0, i1).hwPhi() << " globalPhi " << std::setw(8)
+                                    << hwGmtPhiToGlobalPhi(omtfConfig->calcGlobalPhi(mtfCands->at(0, i1).hwPhi(),
+                                                                                     mtfCands->at(0, i1).processor()))
+                                    << " fireadLayers " << std::bitset<18>(mtfCands->at(0, i1).trackAddress().at(0))
+                                    << " gb isKilled " << isKilled.test(i1) << std::endl;
 
       LogTrace("l1tOmtfEventPrint") << *(gbCandidates.at(i1)) << std::endl;
     }
@@ -393,7 +395,7 @@ MatchingResult CandidateSimMuonMatcher::match(const l1t::RegionalMuonCand* muonC
   double candGloablEta = muonCand->hwEta() * 0.010875;
   //if (fabs(simTrack.momentum().eta() - candGloablEta) < 0.3) //has no sense for displaced muons
   {
-    double candGlobalPhi = omtfConfig->calcGlobalPhi(muonCand->hwPhi(),  muonCand->processor());
+    double candGlobalPhi = omtfConfig->calcGlobalPhi(muonCand->hwPhi(), muonCand->processor());
     candGlobalPhi = hwGmtPhiToGlobalPhi(candGlobalPhi);
 
     if (candGlobalPhi > M_PI)

@@ -299,7 +299,6 @@ void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &ed
   if (edmParameterSet.exists("cleanStubs")) {
     cleanStubs_ = edmParameterSet.getParameter<bool>("cleanStubs");
   }
-
 }
 
 ///////////////////////////////////////////////
@@ -403,7 +402,7 @@ uint32_t OMTFConfiguration::getLayerNumber(uint32_t rawId) const {
 int OMTFConfiguration::calcGlobalPhi(int locPhi, int proc) const {
   int globPhi = 0;
   //60 degree sectors = 96 in int-scale
-  globPhi = (proc)*96 * 6/nProcessors() + locPhi;
+  globPhi = (proc)*96 * 6 / nProcessors() + locPhi;
   // first processor starts at CMS phi = 15 degrees (24 in int)... Handle wrap-around with %. Add 576 to make sure the number is positive
   globPhi = (globPhi + 600) % 576;
   return globPhi;
@@ -606,5 +605,4 @@ void OMTFConfiguration::printConfig() const {
   edm::LogVerbatim("OMTFReconstruction") << "dtRefHitMinQuality " << dtRefHitMinQuality << std::endl;
 
   edm::LogVerbatim("OMTFReconstruction") << "cleanStubs " << cleanStubs_ << std::endl;
-
 }

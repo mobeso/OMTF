@@ -113,10 +113,10 @@ void CscDigiToStubsConverterOmtf::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
 
   //TODO this cut is not yet implemented in the FW,
   //but it is worth to apply it at least for the pattern generation and NN training
-  if(iLayer == 9) {
-    if(stub.r >= config->minCSCStubRME12())
+  if (iLayer == 9) {
+    if (stub.r >= config->minCSCStubRME12())
       OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
-  } else if(stub.r >= config->minCscStubR()) {
+  } else if (stub.r >= config->minCscStubR()) {
     OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
   }
 

@@ -316,8 +316,9 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
     };
 
     if (matchingResult.muonCand && matchingResult.procMuon->getPtConstr() >= 0 &&
-        matchingResult.muonCand->hwQual() >= 1)  //TODO set the quality, quality 0 has the candidates with eta > 1.3(?) EtaHw >= 121
-    {                                            //&& matchingResult.genPt < 20
+        matchingResult.muonCand->hwQual() >= 1) {
+      //TODO set the quality, quality 0 has the candidates with eta > 1.3(?) EtaHw >= 121
+      //&& matchingResult.genPt < 20
 
       omtfEvent.omtfQuality = matchingResult.muonCand->hwQual();  //procMuon->getQ();
       omtfEvent.killed = false;
@@ -341,7 +342,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
           rootTree->Fill();
         }
       }
-    } else if (omtfEvent.muonPt > 0) { //checking if there was a simMuon
+    } else if (omtfEvent.muonPt > 0) {  //checking if there was a simMuon
       LogTrace("l1tOmtfEventPrint") << "DataROOTDumper2::observeEventEnd no matching omtfCand" << std::endl;
 
       omtfEvent.omtfPt = 0;

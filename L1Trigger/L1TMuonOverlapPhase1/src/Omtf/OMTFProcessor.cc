@@ -384,9 +384,9 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
 
     if (useStubQualInExtr) {
       if (targetLayer == 0 || targetLayer == 2 || targetLayer == 4) {
-        if (targetStubQuality == 2)
+        if (targetStubQuality == 2 || targetStubQuality == 0)
           rTargetLayer = rTargetLayer - 23.5 / 2;  //inner superlayer
-        else if (targetStubQuality == 3)
+        else if (targetStubQuality == 3 || targetStubQuality == 1)
           rTargetLayer = rTargetLayer + 23.5 / 2;  //outer superlayer
       }
     }
@@ -497,7 +497,6 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
                                                                   const OMTFConfiguration* omtfConfig) {
   int phiExtr = 0;  //delta phi extrapolated
 
-
   int reflLayerIndex = refLogicLayer == 0 ? 0 : 1;
   int extrFactor = 0;
 
@@ -509,9 +508,10 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
   } else if (targetLayer == 1 || targetLayer == 3 || targetLayer == 5) {
     int deltaPhi = targetStubPhi - refPhi;  //[halfStrip]
 
-    int scaleFactor = this->myOmtfConfig->omtfPhiUnit() *  this->myOmtfConfig->dtPhiBUnitsRad() * 512 ; //= 305 for phase-1, 512 is multiplier
+    int scaleFactor = this->myOmtfConfig->omtfPhiUnit() * this->myOmtfConfig->dtPhiBUnitsRad() * 512;
+    //= 305 for phase-1, 512 is multiplier
 
-    deltaPhi = (deltaPhi * scaleFactor) / 512; //here deltaPhi is converted to the phi_b hw scale
+    deltaPhi = (deltaPhi * scaleFactor) / 512;  //here deltaPhi is converted to the phi_b hw scale
 
     phiExtr = refPhiB - deltaPhi;  //phiExtr is also in phi_b hw scale
     //LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" deltaPhi "<<deltaPhi<<" phiExtr "<<phiExtr<<std::endl;
@@ -548,26 +548,24 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiB(const MuonStubPtr& refSt
                                                         unsigned int targetLayer,
                                                         const OMTFConfiguration* omtfConfig) {
   if (useFloatingPointExtrapolation)
-    return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(
-        refStub->logicLayer,
-        refStub->phiHw,
-        refStub->phiBHw,
-        targetLayer,
-        targetStub->phiHw,
-        targetStub->qualityHw,
-        targetStub->etaHw,
-        targetStub->r,
-        omtfConfig);
-  return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(
-      refStub->logicLayer,
-      refStub->phiHw,
-      refStub->phiBHw,
-      targetLayer,
-      targetStub->phiHw,
-      targetStub->qualityHw,
-      targetStub->etaHw,
-      targetStub->r,
-      omtfConfig);
+    return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(refStub->logicLayer,
+                                                                         refStub->phiHw,
+                                                                         refStub->phiBHw,
+                                                                         targetLayer,
+                                                                         targetStub->phiHw,
+                                                                         targetStub->qualityHw,
+                                                                         targetStub->etaHw,
+                                                                         targetStub->r,
+                                                                         omtfConfig);
+  return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(refStub->logicLayer,
+                                                                       refStub->phiHw,
+                                                                       refStub->phiBHw,
+                                                                       targetLayer,
+                                                                       targetStub->phiHw,
+                                                                       targetStub->qualityHw,
+                                                                       targetStub->etaHw,
+                                                                       targetStub->r,
+                                                                       omtfConfig);
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -762,18 +760,18 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
   std::shared_ptr<OMTFinput> input = std::make_shared<OMTFinput>(this->myOmtfConfig);
   inputMaker->buildInputForProcessor(input->getMuonStubs(), iProcessor, mtfType, bx, bx, observers);
 
-  if(this->myOmtfConfig->cleanStubs()) {
+  if (this->myOmtfConfig->cleanStubs()) {
     //this has sense for the pattern generation from the tracks with the secondaries
     //if more than one stub is in a given layer, all stubs are removed from this layer
     for (unsigned int iLayer = 0; iLayer < input->getMuonStubs().size(); ++iLayer) {
       auto& layerStubs = input->getMuonStubs()[iLayer];
       int count = std::count_if(layerStubs.begin(), layerStubs.end(), [](auto& ptr) { return ptr != nullptr; });
-      if(count > 1) {
-        for(auto& ptr : layerStubs)
+      if (count > 1) {
+        for (auto& ptr : layerStubs)
           ptr.reset();
 
-        LogTrace("OMTFReconstruction") << __FUNCTION__<<":"<<__LINE__<<
-            "cleaning stubs in the layer "<<iLayer<<" stubs count :"<<count<< std::endl;
+        LogTrace("OMTFReconstruction") << __FUNCTION__ << ":" << __LINE__ << "cleaning stubs in the layer " << iLayer
+                                       << " stubs count :" << count << std::endl;
       }
     }
   }
@@ -863,9 +861,9 @@ void OMTFProcessor<GoldenPatternType>::saveExtrapolFactors() {
         lutVal.add("<xmlattr>.value", value);
 
         edm::LogVerbatim("OMTFReconstruction")
-            << std::setw(4) << " key = " << extrFactors.first << " extrFactors.second " << std::setw(10) << extrFactors.second
-            << " norm " << std::setw(6) << norm << " value/norm " << std::setw(10) << extrFactors.second / norm
-            <<" value "<<value<< std::endl;
+            << std::setw(4) << " key = " << extrFactors.first << " extrFactors.second " << std::setw(10)
+            << extrFactors.second << " norm " << std::setw(6) << norm << " value/norm " << std::setw(10)
+            << extrFactors.second / norm << " value " << value << std::endl;
       }
     }
   }
