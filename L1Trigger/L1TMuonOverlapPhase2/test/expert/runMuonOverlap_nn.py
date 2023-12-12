@@ -101,7 +101,6 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAn
 process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfPhase1Digis_cfi')
 
 process.simOmtfPhase1Digis.dumpResultToXML = cms.bool(False)
-process.simOmtfPhase1Digis.dumpResultToROOT = cms.bool(False)
 process.simOmtfPhase1Digis.eventCaptureDebug = cms.bool(False)
 
 process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")

@@ -17,11 +17,14 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   readEventsFromXML = cms.bool(False),
   eventsXMLFiles = cms.vstring("TestEvents.xml"),
   
-  dropRPCPrimitives = cms.bool(False),                                    
-  dropDTPrimitives = cms.bool(False),                                    
-  dropCSCPrimitives = cms.bool(False),
-  processorType = cms.string("OMTFProcessor"),
 
+  dropRPCPrimitives = cms.bool(False),                                    
+  dropCSCPrimitives = cms.bool(False),
+  
+  dropDTPrimitives = cms.bool(True),  
+  usePhase2DTPrimitives = cms.bool(True), #if usePhase2DTPrimitives is True,  dropDTPrimitives must be True as well
+  
+  processorType = cms.string("OMTFProcessor"),
   
   #patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00020007.xml")
   #patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")                               
@@ -43,10 +46,10 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   
   usePhiBExtrapolationFromMB1 = cms.bool(True),
   usePhiBExtrapolationFromMB2 = cms.bool(True),
-  useStubQualInExtr  = cms.bool(False),
-  useEndcapStubsRInExtr  = cms.bool(False),
+  useStubQualInExtr  = cms.bool(True),
+  useEndcapStubsRInExtr  = cms.bool(True),
   useFloatingPointExtrapolation  = cms.bool(False),
-  extrapolFactorsFilename = cms.FileInPath("ExtrapolationFactors_simple.xml"),
+  extrapolFactorsFilename = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/ExtrapolationFactors_ExtraplMB1nadMB2DTQual_ValueP1Scale_t20.xml"),
   
   sorterType = cms.string("byLLH"),
   ghostBusterType = cms.string("byRefLayer"), # byLLH byRefLayer GhostBusterPreferRefDt

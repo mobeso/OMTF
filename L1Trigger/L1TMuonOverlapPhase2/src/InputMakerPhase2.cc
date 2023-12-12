@@ -119,10 +119,9 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
   //stub.etaHw = angleConverter->getGlobalEta(detid, dtThDigis, digi.bxNum() - 20);
   //in phase2, the phiB is 13 bits, and range is [-2, 2 rad] so 4 rad, 2^13 units/(4 rad) =  1^11/rad.
   //need to convert them to 512units==1rad (to use OLD PATTERNS...)
-  if (stub.qualityHw >= config->getMinDtPhiBQuality())
-    stub.phiBHw = digi.phiBend() * config->dtPhiBUnitsRad() / 2048;
-  else
-    stub.phiBHw = config->nPhiBins();
+  stub.phiBHw = digi.phiBend() * config->dtPhiBUnitsRad() / 2048;
+  //the cut if (stub.qualityHw >= config->getMinDtPhiBQuality()) is done in the ProcessorBase<GoldenPatternType>::restrictInput
+  //as is is done like that in the firmware
 
   // need to shift 20-BX to roll-back the shift introduced by the DT TPs
   stub.bx = digi.bxNum() - 20;

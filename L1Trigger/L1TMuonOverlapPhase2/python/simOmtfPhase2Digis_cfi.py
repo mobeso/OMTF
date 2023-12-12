@@ -18,6 +18,7 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   readEventsFromXML = cms.bool(False),
   eventsXMLFiles = cms.vstring("TestEvents.xml"),
   
+  
   dropRPCPrimitives = cms.bool(False),                                    
   dropCSCPrimitives = cms.bool(False),
   
@@ -36,9 +37,9 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   
   noHitValueInPdf = cms.bool(True),
   minDtPhiQuality = cms.int32(2),
-  minDtPhiBQuality = cms.int32(2), #/TODO change to 4
+  minDtPhiBQuality = cms.int32(4), #/TODO change to 4
   
-  dtRefHitMinQuality =  cms.int32(2), #/TODO change to 4
+  dtRefHitMinQuality =  cms.int32(4), #/TODO change to 4
   
   dtPhiBUnitsRad = cms.int32(1024), #2048 is the orginal phase2 scale, 512 is the phase1 scale
     

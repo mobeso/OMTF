@@ -204,7 +204,6 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 process.load('L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi')
 
 process.simOmtfPhase2Digis.dumpResultToXML = cms.bool(options.dump)
-process.simOmtfPhase2Digis.dumpResultToROOT = cms.bool(options.dump)
 process.simOmtfPhase2Digis.eventCaptureDebug = cms.bool(options.verbose)
 
 #rocess.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")
