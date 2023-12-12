@@ -256,14 +256,12 @@ std::vector<const l1t::RegionalMuonCand*> CandidateSimMuonMatcher::ghostBust(
         continue;
 
       if (abs(mtfCand1.hwEta() - mtfCand2.hwEta()) < (0.3 / 0.010875)) {
-        int gloablHwPhi1 = l1t::MicroGMTConfiguration::calcGlobalPhi(
-            mtfCand1.hwPhi(), mtfCand1.trackFinderType(), mtfCand1.processor());
-        int gloablHwPhi2 = l1t::MicroGMTConfiguration::calcGlobalPhi(
-            mtfCand2.hwPhi(), mtfCand2.trackFinderType(), mtfCand2.processor());
+        int gloablHwPhi1 = omtfConfig->calcGlobalPhi(mtfCand1.hwPhi(), mtfCand1.processor());
+        int gloablHwPhi2 = omtfConfig->calcGlobalPhi(mtfCand2.hwPhi(), mtfCand2.processor());
 
         //one can use the phi in radians like that:
-        //double globalPhi1 = hwGmtPhiToGlobalPhi(l1t::MicroGMTConfiguration::calcGlobalPhi( mtfCand1.hwPhi(), mtfCand1.trackFinderType(), mtfCand1.processor() ) );
-        //double globalPhi2 = hwGmtPhiToGlobalPhi(l1t::MicroGMTConfiguration::calcGlobalPhi( mtfCand2.hwPhi(), mtfCand2.trackFinderType(), mtfCand2.processor() ) );
+        //double globalPhi1 = hwGmtPhiToGlobalPhi(omtfConfig->calcGlobalPhi( mtfCand1.hwPhi(), mtfCand1.processor() ) );
+        //double globalPhi2 = hwGmtPhiToGlobalPhi(omtfConfig->calcGlobalPhi( mtfCand2.hwPhi(), mtfCand2.processor() ) );
 
         //0.0872664626 = 5 deg, i.e. the same window as in the OMTF ghost buster
         if (abs(gloablHwPhi1 - gloablHwPhi2) < 8) {
@@ -295,8 +293,7 @@ std::vector<const l1t::RegionalMuonCand*> CandidateSimMuonMatcher::ghostBust(
           << mtfCands->at(0, i1).processor() << " eta " << std::setw(4) << mtfCands->at(0, i1).hwEta() << " gloablEta "
           << std::setw(8) << mtfCands->at(0, i1).hwEta() * 0.010875 << " hwPhi " << std::setw(3)
           << mtfCands->at(0, i1).hwPhi() << " globalPhi " << std::setw(8)
-          << hwGmtPhiToGlobalPhi(l1t::MicroGMTConfiguration::calcGlobalPhi(
-                 mtfCands->at(0, i1).hwPhi(), mtfCands->at(0, i1).trackFinderType(), mtfCands->at(0, i1).processor()))
+          << hwGmtPhiToGlobalPhi(omtfConfig->calcGlobalPhi(mtfCands->at(0, i1).hwPhi(), mtfCands->at(0, i1).processor()))
           << " fireadLayers " << std::bitset<18>(mtfCands->at(0, i1).trackAddress().at(0)) << " gb isKilled "
           << isKilled.test(i1) << std::endl;
 
@@ -396,8 +393,7 @@ MatchingResult CandidateSimMuonMatcher::match(const l1t::RegionalMuonCand* muonC
   double candGloablEta = muonCand->hwEta() * 0.010875;
   //if (fabs(simTrack.momentum().eta() - candGloablEta) < 0.3) //has no sense for displaced muons
   {
-    double candGlobalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi(
-        muonCand->hwPhi(), muonCand->trackFinderType(), muonCand->processor());
+    double candGlobalPhi = omtfConfig->calcGlobalPhi(muonCand->hwPhi(),  muonCand->processor());
     candGlobalPhi = hwGmtPhiToGlobalPhi(candGlobalPhi);
 
     if (candGlobalPhi > M_PI)
@@ -428,7 +424,7 @@ MatchingResult CandidateSimMuonMatcher::match(const l1t::RegionalMuonCand* muonC
     if (simTrack.momentum().pt() > 100)
       treshold = 20. * sigma;
 
-    if (fabs(result.deltaPhi - mean) < treshold)
+    if (fabs(result.deltaPhi - mean) < treshold && fabs(result.deltaEta) < 0.3)
       result.result = MatchingResult::ResultType::matched;
 
     LogTrace("l1tOmtfEventPrint") << "CandidateSimMuonMatcher::match: simTrack type " << simTrack.type() << " pt "
@@ -456,8 +452,7 @@ MatchingResult CandidateSimMuonMatcher::match(const l1t::RegionalMuonCand* muonC
   double candGloablEta = muonCand->hwEta() * 0.010875;
   //if (fabs(trackingParticle.momentum().eta() - candGloablEta) < 0.3)  //has no sense for displaced muons
   {
-    double candGlobalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi(
-        muonCand->hwPhi(), muonCand->trackFinderType(), muonCand->processor());
+    double candGlobalPhi = omtfConfig->calcGlobalPhi(muonCand->hwPhi(), muonCand->processor());
     candGlobalPhi = hwGmtPhiToGlobalPhi(candGlobalPhi);
 
     if (candGlobalPhi > M_PI)
@@ -517,6 +512,7 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::cleanMatching(std::vector<M
       matchingResults.begin(), matchingResults.end(), [](const MatchingResult& a, const MatchingResult& b) -> bool {
         return a.matchingLikelihood > b.matchingLikelihood;
       });
+
   for (unsigned int i1 = 0; i1 < matchingResults.size(); i1++) {
     if (matchingResults[i1].result == MatchingResult::ResultType::matched) {
       for (unsigned int i2 = i1 + 1; i2 < matchingResults.size(); i2++) {
@@ -623,11 +619,11 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::match(std::vector<const l1t
     //eta 0.7 is the beginning of the MB2,
     //the eta range wider than the nominal OMTF region is needed, as in any case muons outside this region are seen by the OMTF
     //so it better to train the nn suich that is able to measure its pt, as it may affect the rate
-    if ((fabs(tsof.globalPosition().eta()) >= 0.7) && (fabs(tsof.globalPosition().eta()) <= 1.3)) {
+    if ((fabs(tsof.globalPosition().eta()) >= 0.7) && (fabs(tsof.globalPosition().eta()) <= 1.31)) {
       LogTrace("l1tOmtfEventPrint")
-          << "CandidateSimMuonMatcher::match trackingParticle IS in OMTF region, matching to the omtfCands";
+          << "CandidateSimMuonMatcher::match simTrack IS in OMTF region, matching to the omtfCands";
     } else {
-      LogTrace("l1tOmtfEventPrint") << "trackingParticle NOT in OMTF region ";
+      LogTrace("l1tOmtfEventPrint") << "simTrack NOT in OMTF region ";
       continue;
     }
 

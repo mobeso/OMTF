@@ -114,7 +114,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
 
 ####Event Setup Producer
 process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008_patGen.xml")
+process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0009_patGen.xml")
 process.omtfParams.patternsXMLFiles = cms.VPSet(
         cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")), )
 
@@ -135,7 +135,6 @@ process.simOmtfDigis.bxMin = cms.int32(0)
 process.simOmtfDigis.bxMax = cms.int32(0)
 
 process.simOmtfDigis.dumpResultToXML = cms.bool(False)
-process.simOmtfDigis.dumpResultToROOT = cms.bool(False)
 process.simOmtfDigis.eventCaptureDebug = cms.bool(False)
 
 process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")

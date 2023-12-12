@@ -128,6 +128,8 @@ public:
   void finalise9();
 
   void finalise10();
+
+  void finalise11();
   //bool empty() const;
 
   friend std::ostream& operator<<(std::ostream& out, const GoldenPatternResult& aResult);

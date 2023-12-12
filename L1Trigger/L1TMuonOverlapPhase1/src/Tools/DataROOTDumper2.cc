@@ -197,7 +197,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
       omtfEvent.deltaEta = matchingResult.deltaEta;
       omtfEvent.deltaPhi = matchingResult.deltaPhi;
 
-      LogTrace("l1tOmtfEventPrint") << "DataROOTDumper2::observeEventEnd trackingParticle: eventId "
+      LogTrace("l1tOmtfEventPrint") << "DataROOTDumper2::observeEventEnd simTrack: eventId "
                                     << simTrack->eventId().event() << " pdgId " << std::setw(3)
                                     << simTrack->type()  //<< " trackId " << simTrack->g4Tracks().at(0).trackId()
                                     << " pt " << std::setw(9)
@@ -257,6 +257,12 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
 
       for (unsigned int iLogicLayer = 0; iLogicLayer < gpResult.getStubResults().size(); ++iLogicLayer) {
         auto& stubResult = gpResult.getStubResults()[iLogicLayer];
+
+        //TODO it is to have the hit if it is below the quality cut
+        /*if (omtfConfig->isBendingLayer(iLogicLayer) && !stubResult.getMuonStub()) {
+          auto& stubResult = gpResult.getStubResults()[iLogicLayer-1];
+        }*/
+
         if (stubResult.getMuonStub()) {  //&& stubResult.getValid() //TODO!!!!!!!!!!!!!!!!1
           OmtfEvent::Hit hit;
           hit.layer = iLogicLayer;
@@ -310,7 +316,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
     };
 
     if (matchingResult.muonCand && matchingResult.procMuon->getPtConstr() >= 0 &&
-        matchingResult.muonCand->hwQual() >= 1)  //TODO set the quality
+        matchingResult.muonCand->hwQual() >= 1)  //TODO set the quality, quality 0 has the candidates with eta > 1.3(?) EtaHw >= 121
     {                                            //&& matchingResult.genPt < 20
 
       omtfEvent.omtfQuality = matchingResult.muonCand->hwQual();  //procMuon->getQ();
@@ -335,7 +341,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
           rootTree->Fill();
         }
       }
-    } else {
+    } else if (omtfEvent.muonPt > 0) { //checking if there was a simMuon
       LogTrace("l1tOmtfEventPrint") << "DataROOTDumper2::observeEventEnd no matching omtfCand" << std::endl;
 
       omtfEvent.omtfPt = 0;

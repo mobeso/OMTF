@@ -78,9 +78,10 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
   if (edmCfg.exists("useFloatingPointExtrapolation"))
     useFloatingPointExtrapolation = edmCfg.getParameter<bool>("useFloatingPointExtrapolation");
 
-  std::string extrapolFactorsFileName;
-  if (edmCfg.exists("extrapolFactorsFileName"))
-    extrapolFactorsFileName = edmCfg.getParameter<edm::FileInPath>("extrapolFactorsFileName").fullPath();
+  std::string extrapolFactorsFilename;
+  if (edmCfg.exists("extrapolFactorsFilename")) {
+    extrapolFactorsFilename = edmCfg.getParameter<edm::FileInPath>("extrapolFactorsFilename").fullPath();
+  }
 
   if (this->myOmtfConfig->usePhiBExtrapolationMB1() || this->myOmtfConfig->usePhiBExtrapolationMB2()) {
     extrapolFactors.resize(2, std::vector<std::map<int, double> >(this->myOmtfConfig->nLayers()));
@@ -88,13 +89,13 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
 
     //when useFloatingPointExtrapolation is true the extrapolFactors are not used,
     //all calculations are done in the extrapolateDtPhiBFloatPoint
-    if (!extrapolFactorsFileName.empty() && !useFloatingPointExtrapolation)
-      loadExtrapolFactors(extrapolFactorsFileName);
+    if (!extrapolFactorsFilename.empty() && !useFloatingPointExtrapolation)
+      loadExtrapolFactors(extrapolFactorsFilename);
   }
 
   edm::LogVerbatim("OMTFReconstruction") << "useFloatingPointExtrapolation " << useFloatingPointExtrapolation
                                          << std::endl;
-  edm::LogVerbatim("OMTFReconstruction") << "extrapolFactorsFileName " << extrapolFactorsFileName << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "extrapolFactorsFilename " << extrapolFactorsFilename << std::endl;
 }
 
 template <class GoldenPatternType>
@@ -275,6 +276,8 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
 
     std::map<int, int> trackAddr;
     trackAddr[0] = myCand->getFiredLayerBits();
+    //TODO in the hardware, the uPt is sent to the uGMT at the trackAddr = (uPt << 18) + trackAddr;
+    //check if it matters if it needs to be here as well
     trackAddr[1] = myCand->getRefLayer();
     trackAddr[2] = myCand->getDisc();
     trackAddr[3] = myCand->getGpResultUnconstr().getPdfSumUnconstr();
@@ -494,9 +497,6 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
                                                                   const OMTFConfiguration* omtfConfig) {
   int phiExtr = 0;  //delta phi extrapolated
 
-  //omtfConfig->omtfPhiUnit() * 512 * 512 - first 512 is the is the phiB scale (512 units / rad)
-  //the second 512 is just multiplier to have integer value, it is then removed by diving by 512 in the deltaPhi
-  int omtfPhiUnitInt = 305;
 
   int reflLayerIndex = refLogicLayer == 0 ? 0 : 1;
   int extrFactor = 0;
@@ -509,8 +509,10 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
   } else if (targetLayer == 1 || targetLayer == 3 || targetLayer == 5) {
     int deltaPhi = targetStubPhi - refPhi;  //[halfStrip]
 
-    //deltaPhi = round(deltaPhi * omtfConfig->omtfPhiUnit() * 512.); //deltaPhi is in phi_b hw scale
-    deltaPhi = (deltaPhi * omtfPhiUnitInt) / 512;
+    int scaleFactor = this->myOmtfConfig->omtfPhiUnit() *  this->myOmtfConfig->dtPhiBUnitsRad() * 512 ; //= 305 for phase-1, 512 is multiplier
+
+    deltaPhi = (deltaPhi * scaleFactor) / 512; //here deltaPhi is converted to the phi_b hw scale
+
     phiExtr = refPhiB - deltaPhi;  //phiExtr is also in phi_b hw scale
     //LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" deltaPhi "<<deltaPhi<<" phiExtr "<<phiExtr<<std::endl;
 
@@ -518,6 +520,8 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
     extrFactor = extrapolFactors[reflLayerIndex][targetLayer][0];
   } else if ((targetLayer >= 6 && targetLayer <= 9) || (targetLayer >= 15 && targetLayer <= 17)) {
     if (useEndcapStubsRInExtr) {
+      //if given abs(targetStubEta) value is not present in the map, it is added with default value of 0
+      //so it should be good. The only problem is that the map can grow...
       extrFactor = extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubEta)];
     } else {
       extrFactor = extrapolFactors[reflLayerIndex][targetLayer][0];
@@ -552,8 +556,8 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiB(const MuonStubPtr& refSt
         targetStub->phiHw,
         targetStub->qualityHw,
         targetStub->etaHw,
-        targetStub->etaSigmaHw,
-        omtfConfig);  //TODO do not use etaSigmaHw for R!!!!!!
+        targetStub->r,
+        omtfConfig);
   return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(
       refStub->logicLayer,
       refStub->phiHw,
@@ -562,8 +566,8 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiB(const MuonStubPtr& refSt
       targetStub->phiHw,
       targetStub->qualityHw,
       targetStub->etaHw,
-      targetStub->etaSigmaHw,
-      omtfConfig);  //TODO do not use etaSigmaHw for R!!!!!!
+      targetStub->r,
+      omtfConfig);
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -583,7 +587,6 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
   LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << "\n"
                                 << __LINE__ << " iProcessor " << iProcessor << " mtfType " << mtfType << " procIndx "
                                 << procIndx << " ----------------------" << std::endl;
-
   //////////////////////////////////////
   //////////////////////////////////////
   std::vector<const RefHitDef*> refHitDefs;
@@ -654,7 +657,12 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
                 extrapolatedPhiTree.add("<xmlattr>.iStub", iStub);
                 extrapolatedPhiTree.add("<xmlattr>.qualityHw", targetStub->qualityHw);
                 extrapolatedPhiTree.add("<xmlattr>.etaHw", targetStub->etaHw);
-                extrapolatedPhiTree.add("<xmlattr>.val", extrapolatedPhi[iStub]);
+                extrapolatedPhiTree.add("<xmlattr>.phiExtr", extrapolatedPhi[iStub]);
+
+                if (this->myOmtfConfig->isBendingLayer(iLayer))
+                  extrapolatedPhiTree.add("<xmlattr>.dist_phi", targetStub->phiBHw - extrapolatedPhi[iStub]);
+                else
+                  extrapolatedPhiTree.add("<xmlattr>.dist_phi", targetStub->phiHw - extrapolatedPhi[iStub]);
               }
             }
             iStub++;
@@ -754,6 +762,22 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
   std::shared_ptr<OMTFinput> input = std::make_shared<OMTFinput>(this->myOmtfConfig);
   inputMaker->buildInputForProcessor(input->getMuonStubs(), iProcessor, mtfType, bx, bx, observers);
 
+  if(this->myOmtfConfig->cleanStubs()) {
+    //this has sense for the pattern generation from the tracks with the secondaries
+    //if more than one stub is in a given layer, all stubs are removed from this layer
+    for (unsigned int iLayer = 0; iLayer < input->getMuonStubs().size(); ++iLayer) {
+      auto& layerStubs = input->getMuonStubs()[iLayer];
+      int count = std::count_if(layerStubs.begin(), layerStubs.end(), [](auto& ptr) { return ptr != nullptr; });
+      if(count > 1) {
+        for(auto& ptr : layerStubs)
+          ptr.reset();
+
+        LogTrace("OMTFReconstruction") << __FUNCTION__<<":"<<__LINE__<<
+            "cleaning stubs in the layer "<<iLayer<<" stubs count :"<<count<< std::endl;
+      }
+    }
+  }
+
   //LogTrace("l1tOmtfEventPrint")<<"buildInputForProce "; t.report();
   processInput(iProcessor, mtfType, *(input.get()), observers);
 
@@ -802,6 +826,9 @@ void OMTFProcessor<GoldenPatternType>::printInfo() const {
 
 template <class GoldenPatternType>
 void OMTFProcessor<GoldenPatternType>::saveExtrapolFactors() {
+  //if(this->myOmtfConfig->nProcessors() == 3) //phase2
+  extrapolMultiplier = 512;
+
   boost::property_tree::ptree tree;
   auto& extrFactorsTree = tree.add("ExtrapolationFactors", "");
   extrFactorsTree.add("<xmlattr>.multiplier", extrapolMultiplier);
@@ -831,11 +858,14 @@ void OMTFProcessor<GoldenPatternType>::saveExtrapolFactors() {
           lutVal.add("<xmlattr>.key", extrFactors.first);
         else
           lutVal.add("<xmlattr>.key", extrFactors.first);
-        lutVal.add("<xmlattr>.value", round(extrapolMultiplier * extrFactors.second / norm));
+
+        double value = round(extrapolMultiplier * extrFactors.second / norm);
+        lutVal.add("<xmlattr>.value", value);
 
         edm::LogVerbatim("OMTFReconstruction")
-            << std::setw(4) << extrFactors.first << " = " << extrFactors.first << std::setw(10) << extrFactors.second
-            << " " << std::setw(6) << norm << " " << std::setw(10) << extrFactors.second / norm << std::endl;
+            << std::setw(4) << " key = " << extrFactors.first << " extrFactors.second " << std::setw(10) << extrFactors.second
+            << " norm " << std::setw(6) << norm << " value/norm " << std::setw(10) << extrFactors.second / norm
+            <<" value "<<value<< std::endl;
       }
     }
   }

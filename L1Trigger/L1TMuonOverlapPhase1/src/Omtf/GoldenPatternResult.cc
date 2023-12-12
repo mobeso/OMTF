@@ -80,6 +80,8 @@ void GoldenPatternResult::init(const OMTFConfiguration* omtfConfig) {
     finalise = [this]() { finalise9(); };
   else if (finalizeFunction == 10)
     finalise = [this]() { finalise10(); };
+  else if (finalizeFunction == 11)
+    finalise = [this]() { finalise11(); };
   else
     finalise = [this]() { finalise0(); };
 
@@ -374,8 +376,61 @@ void GoldenPatternResult::finalise10() {
     //Or maybe not - if the pt is 0, then the muon is not valid. So the displaced muon will be lost.
     //So the way it is done now actually is good. Such a muon will have some low constrained pt probably.
     //what can be done is to assign to it the hwPt = 1 , but not 0
+    //TODO modify this condition to use the firedLayerBits and not getPdfVal
+    //as it would be much easier for the firmware
     if (stubResults[refLayerLogicNumber + 1].getPdfVal() == 0)
       pdfSum = 0;
+  } else
+    pdfSumUnconstr = 0;
+
+  valid = true;
+  //by default result becomes valid here, but can be overwritten later
+}
+
+//  the same as finalise10 but without:
+//if (stubResults[refLayerLogicNumber + 1].getPdfVal() == 0)
+//  pdfSum = 0;
+void GoldenPatternResult::finalise11() {
+  for (unsigned int iLogicLayer = 0; iLogicLayer < stubResults.size(); ++iLogicLayer) {
+    unsigned int connectedLayer = omtfConfig->getLogicToLogic().at(iLogicLayer);
+
+    if (omtfConfig->isBendingLayer(iLogicLayer)) {  //the DT phiB layer is counted only when the phi layer is fired
+      if (firedLayerBits & (1 << iLogicLayer)) {
+        if (firedLayerBits & (1 << connectedLayer)) {
+          firedLayerCnt++;
+          pdfSum += stubResults[iLogicLayer].getPdfVal();
+        } else {
+          firedLayerBits &= ~(1 << iLogicLayer);
+          stubResults[iLogicLayer].setValid(false);
+          //if(stubResults[iLogicLayer].getPdfVal() == 0) pdfSum -= 64;; //there was hit, but it did not fire to the pdf - this is not possible here, since the banding layer if fired here
+          //so in this case simply:
+          //pdfSum += 0;
+        }
+      } else {
+        //bending layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
+        /*if (stubResults[iLogicLayer].getPdfVal() == 0)
+          pdfSum -= 32; //has no sense with extrapolation from the ref layer using the phiB
+        else*/
+        pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
+      }
+    } else {
+      if (iLogicLayer < 10 && stubResults[iLogicLayer].getPdfVal() == 0)
+        pdfSum -= 32;
+      else
+        pdfSum += stubResults[iLogicLayer].getPdfVal();
+      if (firedLayerBits & (1 << iLogicLayer)) {  //pdfSum is counted always
+        firedLayerCnt++;
+      }
+    }
+  }
+
+  if ((omtfConfig->usePhiBExtrapolationMB1() && refLayer == 0) ||
+      (omtfConfig->usePhiBExtrapolationMB2() && refLayer == 2)) {
+    auto refLayerLogicNumber = omtfConfig->getRefToLogicNumber()[refLayer];
+    //Unconstrained pt is obtained by not including the pdfValue from the phiB of the refHit
+    //TODO get logic layer from connectedLayer
+    pdfSumUnconstr = pdfSum - stubResults[refLayerLogicNumber + 1].getPdfVal();
+
   } else
     pdfSumUnconstr = 0;
 

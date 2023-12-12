@@ -53,10 +53,9 @@ void DtDigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers,
       OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, digi.scNum(), digi.phi());
   stub.etaHw = angleConverter->getGlobalEta(detid, dtThDigis, digi.bxNum());
 
-  if (stub.qualityHw >= config->getMinDtPhiBQuality())
-    stub.phiBHw = digi.phiB();
-  else
-    stub.phiBHw = config->nPhiBins();
+  //the cut if (stub.qualityHw >= config->getMinDtPhiBQuality()) is done in the ProcessorBase<GoldenPatternType>::restrictInput
+  //as is is done like that in the firmware
+  stub.phiBHw = digi.phiB();
 
   stub.bx = digi.bxNum();  //TODO sholdn't  it be BxCnt()?
   //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
@@ -101,7 +100,7 @@ void CscDigiToStubsConverterOmtf::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
   stub.phiHw = angleConverter->getProcessorPhi(
       OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, CSCDetId(rawid), digi, iInput);
   stub.etaHw = angleConverter->getGlobalEta(rawid, digi, r);
-  stub.etaSigmaHw = round(r);
+  stub.r = round(r);
   stub.phiBHw = digi.getPattern();  //TODO change to phiB when implemented
   stub.qualityHw = digi.getQuality();
 
@@ -112,7 +111,15 @@ void CscDigiToStubsConverterOmtf::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
   stub.logicLayer = iLayer;
   stub.detId = rawid;
 
-  OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  //TODO this cut is not yet implemented in the FW,
+  //but it is worth to apply it at least for the pattern generation and NN training
+  if(iLayer == 9) {
+    if(stub.r >= config->minCSCStubRME12())
+      OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  } else if(stub.r >= config->minCscStubR()) {
+    OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  }
+
   ///Accept CSC digis only up to eta=1.26.
   ///The nominal OMTF range is up to 1.24, but cutting at 1.24
   ///kill efficiency at the edge. 1.26 is one eta bin above nominal.
@@ -173,7 +180,7 @@ void RpcDigiToStubsConverterOmtf::addRPCstub(MuonStubPtrs2D& muonStubsInLayers,
 
   float r = 0;
   stub.etaHw = angleConverter->getGlobalEtaRpc(rawid, cluster.firstStrip, r);
-  stub.etaSigmaHw = round(r);
+  stub.r = round(r);
 
   stub.qualityHw = cluster.size();
 

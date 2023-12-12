@@ -124,7 +124,7 @@ public:
   //ghost busts at the same time the  mtfCands and the gbCandidates
   //gbCandidates - all gbCandidates from all processors, should be one-to-one as the mtfCands,
   //and the ghostBustedProcMuons are one-to-onr to the returned RegionalMuonCands
-  static std::vector<const l1t::RegionalMuonCand*> ghostBust(const l1t::RegionalMuonCandBxCollection* mtfCands,
+  std::vector<const l1t::RegionalMuonCand*> ghostBust(const l1t::RegionalMuonCandBxCollection* mtfCands,
                                                              const AlgoMuons& gbCandidates,
                                                              AlgoMuons& ghostBustedProcMuons);
 

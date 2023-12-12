@@ -149,6 +149,8 @@ public:
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   int ptGevToHw(double ptGev) const override { return (ptGev / ptUnit + 1); }
 
+  int calcGlobalPhi(int locPhi, int proc) const;
+
   double etaUnit = 0.010875;  //=2.61/240 TODO value taken from the interface note, should be defined somewhere globally
   ///center of eta bin
   virtual double hwEtaToEta(int hwEta) const { return (hwEta * etaUnit); }
@@ -279,6 +281,13 @@ public:
 
   bool useStubQualInExtr() const { return useStubQualInExtr_; }
 
+  //[cm]
+  int minCSCStubRME12() const { return minCSCStubRME12_; }
+  //[cm], othere CSC station than ME1/2
+  int minCscStubR() const { return minCSCStubR_; }
+
+  bool cleanStubs() const { return cleanStubs_; }
+
 private:
   L1TMuonOverlapParams rawParams;
 
@@ -354,7 +363,12 @@ private:
   //Remember that it is on the top of the minDtPhiQuality
   int dtRefHitMinQuality = 2;
 
+  int minCSCStubRME12_ = 0;
+  int minCSCStubR_ = 0;
+
   bool dumpResultToXML = false;
+
+  bool cleanStubs_ = false;
 };
 
 #endif

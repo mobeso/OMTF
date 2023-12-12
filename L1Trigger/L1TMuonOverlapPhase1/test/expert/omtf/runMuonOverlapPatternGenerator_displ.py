@@ -199,7 +199,7 @@ process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 
 ####Event Setup Producer
 process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008_patGen.xml")
+process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0009_patGen.xml")
 
 process.omtfParams.patternsXMLFiles = cms.VPSet(
         #cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")),
@@ -239,7 +239,6 @@ process.simOmtfDigis.bxMin = cms.int32(0)
 process.simOmtfDigis.bxMax = cms.int32(0)
 
 process.simOmtfDigis.dumpResultToXML = cms.bool(False)
-process.simOmtfDigis.dumpResultToROOT = cms.bool(False)
 process.simOmtfDigis.eventCaptureDebug = cms.bool(False)
 
 process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")
@@ -260,6 +259,9 @@ process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
 process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
 process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
 
+process.simOmtfDigis.minCSCStubRME12 = cms.int32(410) #[cm]
+process.simOmtfDigis.minCSCStubR = cms.int32(490) #[cm]
+
 process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
 process.simOmtfDigis.minDtPhiBQuality = cms.int32(4)
 
@@ -273,9 +275,9 @@ process.simOmtfDigis.usePhiBExtrapolationFromMB2 = cms.bool(False)
 process.simOmtfDigis.useStubQualInExtr  = cms.bool(True)
 process.simOmtfDigis.useEndcapStubsRInExtr  = cms.bool(True)
 process.simOmtfDigis.useFloatingPointExtrapolation  = cms.bool(True)
-#process.simOmtfDigis.extrapolFactorsFilename = cms.string("ExtrapolationFactors_DTQualAndEtaValueP1Scale.xml")
-#process.simOmtfDigis.extrapolFactorsFilename = cms.string("ExtrapolationFactors_simple.xml")
-process.simOmtfDigis.extrapolFactorsFilename = cms.string("")
+#process.simOmtfDigis.extrapolFactorsFilename = cms.FileInPath("ExtrapolationFactors_DTQualAndEtaValueP1Scale.xml")
+#process.simOmtfDigis.extrapolFactorsFilename = cms.FileInPath("ExtrapolationFactors_simple.xml")
+process.simOmtfDigis.extrapolFactorsFilename = cms.FileInPath("")
 
 process.simOmtfDigis.stubEtaEncoding = cms.string("valueP1Scale")  
 #process.simOmtfDigis.stubEtaEncoding = cms.string("bits")   
