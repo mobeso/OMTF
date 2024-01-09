@@ -17,7 +17,7 @@ verbose = True
 #version = 'ExtraplMB1nadMB2SimplifiedFP_t17_v11_test_valueP1Scale'
 #version = 'ExtraplMB1nadMB2SimplifiedFP_t19_v16_test_bits'
 #version = 'Patterns_0x00012_t17_v11_extr_off_test_bits'
-version = 'ExtraplMB1nadMB2SimplifiedFP_t20_v16_test_bits_MH-1000_MFF-150_CTau-1000mm_1file3'
+version = 't20__Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3__MH-1000_MFF-150_CTau-1000mm_1file4'
 
 runDebug = "DEBUG" # or "INFO" DEBUG
 useExtraploationAlgo = True
@@ -35,7 +35,7 @@ if verbose:
                     ),
        categories        = cms.untracked.vstring( 'OMTFReconstruction', 'l1tOmtfEventPrint', 'l1MuonAnalyzerOmtf'), #'l1tOmtfEventPrint', 'l1MuonAnalyzerOmtf'
        omtfEventPrint = cms.untracked.PSet(    
-                         filename  = cms.untracked.string('log_MuonOverlap_newPats_t' + version),
+                         filename  = cms.untracked.string('log_' + version),
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string("INFO"), #DEBUG
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
@@ -185,7 +185,7 @@ fileNames = cms.untracked.vstring(
 )
 	                    
 if(runDebug == "DEBUG") :
-    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000))
+    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200))
 else :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
@@ -211,7 +211,7 @@ for a in sys.argv :
     
 print("analysisType=" + analysisType)
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis2_eff_SingleMu_t' + version + '.root'), closeFileFast = cms.untracked.bool(True) )
+process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis2_eff__' + version + '.root'), closeFileFast = cms.untracked.bool(True) )
                                    
 ####OMTF Emulator
 if useExtraploationAlgo :
@@ -221,7 +221,7 @@ else :
 
 if(runDebug == "DEBUG") :
     process.simOmtfDigis.dumpResultToXML = cms.bool(True)
-    process.simOmtfDigis.XMLDumpFileName = cms.string("TestEvents_" + version + ".xml")
+    process.simOmtfDigis.XMLDumpFileName = cms.string("TestEvents__" + version + ".xml")
 else :
     process.simOmtfDigis.dumpResultToXML = cms.bool(False)
 
@@ -260,8 +260,9 @@ if useExtraploationAlgo :
     #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_layerStat_ExtraplMB1nadMB2_t10_classProb17_recalib2_test.xml")
     #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2Simplified_t14_classProb17_recalib2.xml")
     #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2FullAlgo_t16_classProb17_recalib2.xml")
-    process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2.xml")
-    #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0.xml")
+    #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2.xml")
+    #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3.xml")
+    process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3.xml")
 else :
     process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")
 

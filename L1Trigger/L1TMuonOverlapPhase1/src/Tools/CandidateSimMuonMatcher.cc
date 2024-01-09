@@ -612,10 +612,11 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::match(std::vector<const l1t
     bool matched = false;
 
     TrajectoryStateOnSurface tsof = propagate(simTrack, simVertices);
+    MatchingResult result(simTrack);
+    result.result = MatchingResult::ResultType::propagationFailed;
     if (!tsof.isValid()) {
-      LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__ << " propagation failed" << std::endl;
-      MatchingResult result;
-      result.result = MatchingResult::ResultType::propagationFailed;
+      edm::LogVerbatim("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__
+          << " propagation failed: genPt " << result.genPt << " genEta " << result.genEta << " " <<std::endl;
       continue;  //no sense to do matching
     }
 
