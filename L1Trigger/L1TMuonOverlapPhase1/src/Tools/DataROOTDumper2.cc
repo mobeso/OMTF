@@ -342,7 +342,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
                                     << " RefHitNumber " << procMuon->getRefHitNumber() << std::endl;
     };
 
-    if (matchingResult.muonCand && matchingResult.procMuon->getPtConstr() >= 0 &&
+    if (matchingResult.muonCand && matchingResult.procMuon->getPtConstr() > 0 &&
         matchingResult.muonCand->hwQual() >= 1) {
       //TODO set the quality, quality 0 has the candidates with eta > 1.3(?) EtaHw >= 121
       //&& matchingResult.genPt < 20

@@ -463,7 +463,7 @@ MatchingResult CandidateSimMuonMatcher::match(const l1t::RegionalMuonCand* muonC
     if(simTrack.momentum().pt() < 10) //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! tune the threshold!!!!!!
       treshold = 0.3;
     else if(simTrack.momentum().pt() < 30) //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! tune the threshold!!!!!!
-      treshold = 0.2;
+      treshold = 0.22;
 
     if (std::abs(result.deltaPhi - mean) < treshold && std::abs(result.deltaEta) < 0.3)
       result.result = MatchingResult::ResultType::matched;

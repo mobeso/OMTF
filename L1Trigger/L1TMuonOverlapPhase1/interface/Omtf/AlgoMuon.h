@@ -41,14 +41,12 @@ public:
 
   //hardware pt
   int getPtConstr() const {
-    //TODO maybe it should return 0 and not -1?
-    return goldenPaternConstr == nullptr ? -1 : goldenPaternConstr->key().thePt;
+    return goldenPaternConstr == nullptr ? 0 : goldenPaternConstr->key().thePt;
   }
 
   //hardware upt, in the phase1 the upt scale unit is 1 GeV, while for the pt the unit is 0.5GeV
   int getPtUnconstr() const {
-    //TODO maybe it should return 0 and not -1?
-    return goldenPaternUnconstr == nullptr ? -1 : (goldenPaternUnconstr->key().thePt - 1) / 2 + 1;
+    return goldenPaternUnconstr == nullptr ? 0 : (goldenPaternUnconstr->key().thePt - 1) / 2 + 1;
   }
 
   int getChargeConstr() const { return goldenPaternConstr == nullptr ? -1 : goldenPaternConstr->key().theCharge; }
@@ -74,7 +72,7 @@ public:
   }
 
   bool isValid() const {
-    return (getPtConstr() > 0) || (getPtUnconstr() > 0);  //should this really be pt or quality ?? FIXME
+    return (getPtConstr() > 0) || (getPtUnconstr() > 0);  //PtConstr == 0 denotes empty candidate
   }
 
   double getPdfSumConstr() const { return gpResultConstr.getPdfSum(); }
