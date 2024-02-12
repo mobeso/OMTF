@@ -110,12 +110,17 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
     //the charge is only for the constrained measurement. The constrained measurement is always defined for a valid candidate
     if (ptAssignment) {
       candidate.setHwPt(myCand->getPtNNConstr());
+      if (myCand->getPdfSumConstr() == 0 && myCand->getPtUnconstr() > 0)
+        candidate.setHwPt(1);
+
       candidate.setHwSign(myCand->getChargeNNConstr() < 0 ? 1 : 0);
     } else {
-      if(myCand->getPdfSumConstr() > 0)
+      if (myCand->getPdfSumConstr() > 0)
         candidate.setHwPt(myCand->getPtConstr());
-      else if(myCand->getPtUnconstr() > 0) //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
-        candidate.setHwPt(1); //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
+      else if (myCand->getPtUnconstr() > 0)  
+        //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
+        //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
+        candidate.setHwPt(1);  
       else
         candidate.setHwPt(0);
 
