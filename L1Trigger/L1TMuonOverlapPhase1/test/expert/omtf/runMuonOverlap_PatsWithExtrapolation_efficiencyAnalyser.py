@@ -15,14 +15,14 @@ verbose = True
 
 useExtraploationAlgo = True
 
-version = 't21a__'
+version = 't22__'
 
 if useExtraploationAlgo :
-    version = version + 'Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3_gpFinalize10'
+    version = version + 'Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3_gpFinalize10_DTQ_2_2'
 else :
-    version = version + 'Patterns_0x00012'
+    version = version + 'Patterns_0x00012_DTQ_2_4'
 
-runDebug = "DEBUG" # or "INFO" DEBUG
+runDebug = "INFO" # or "INFO" DEBUG
 #useExtraploationAlgo = True
 
 
@@ -146,8 +146,8 @@ if filesNameLike == 'mcWaw2023_OneOverPt_and_iPt2':
              #
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
-              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
-              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 10000}, #500 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 10000}, #500 files
              ]
 
 if filesNameLike == "EfeMC_HTo2LongLivedTo2mu2jets" :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -156,6 +156,15 @@ if filesNameLike == "EfeMC_HTo2LongLivedTo2mu2jets" :    #<<<<<<<<<<<<<<<<<<<<<<
     paths = [
         {"path": '/eos/cms/store/user/eyigitba/dispDiMu/crabOut/CRAB_PrivateMC/', "fileCnt" : 10000},
         ]   
+
+if filesNameLike == "NeutrinoGun_PU200_Alibordi" :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    cscBx = 8
+    matchUsingPropagation  = False 
+    paths = [
+        {"path": '/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/NeutrinoGun_PU200_ForRateEstimation/', "fileCnt" : 10000},
+        ]   
+    analysisType = "rate"
+    
         
 print("input data paths", paths)        
 
@@ -256,9 +265,10 @@ else :
     process.simOmtfDigis.eventCaptureDebug = cms.bool(False)    
 #process.simOmtfDigis.simTracksTag = cms.InputTag('g4SimHits')
 
-process.simOmtfDigis.simTracksTag = cms.InputTag('g4SimHits')
-process.simOmtfDigis.simVertexesTag = cms.InputTag('g4SimHits')
-process.simOmtfDigis.muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_100files_smoothStdDev_withOvf.root")
+#needed only for the hits dumper
+#process.simOmtfDigis.simTracksTag = cms.InputTag('g4SimHits')
+#process.simOmtfDigis.simVertexesTag = cms.InputTag('g4SimHits')
+#process.simOmtfDigis.muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_100files_smoothStdDev_withOvf.root")
 
 
 process.simOmtfDigis.dumpHitsToROOT = cms.bool(False)
@@ -299,9 +309,6 @@ process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
 
 process.simOmtfDigis.noHitValueInPdf = cms.bool(True)
 
-process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
-process.simOmtfDigis.minDtPhiBQuality = cms.int32(4)
-
 process.simOmtfDigis.lctCentralBx = cms.int32(cscBx);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 
 if useExtraploationAlgo :
@@ -312,6 +319,12 @@ if useExtraploationAlgo :
     
     process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(10) #valid values are 0, 1, 2, 3, 5
     
+    process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
+    process.simOmtfDigis.minDtPhiBQuality = cms.int32(2) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!
+else :
+    process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
+    process.simOmtfDigis.minDtPhiBQuality = cms.int32(4) #in 2023 it was 2  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!
+         
 #process.simOmtfDigis.stubEtaEncoding = cms.string("valueP1Scale")  
 #process.simOmtfDigis.stubEtaEncoding = cms.string("bits")   
 
@@ -336,7 +349,8 @@ process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAl
 #process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
 
 
-process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf", 
+if matchUsingPropagation :
+    process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf", 
                                  etaCutFrom = cms.double(0.82), #OMTF eta range
                                  etaCutTo = cms.double(1.24),
                                  L1OMTFInputTag  = cms.InputTag("simOmtfDigis","OMTF"),
@@ -349,7 +363,18 @@ process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf",
                                  matchUsingPropagation = cms.bool(matchUsingPropagation),
                                  muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_100files_smoothStdDev_withOvf.root") #if you want to make this file, remove this entry#if you want to make this file, remove this entry
                                  #muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_noPropagation_t74.root")
-                                        )
+                                 )
+else :
+    process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf", 
+                                 etaCutFrom = cms.double(0.82), #OMTF eta range
+                                 etaCutTo = cms.double(1.24),
+                                 L1OMTFInputTag  = cms.InputTag("simOmtfDigis","OMTF"),
+                                 #nn_pThresholds = cms.vdouble(nn_pThresholds), 
+                                 analysisType = cms.string(analysisType),
+                                 
+                                 #matchUsingPropagation = cms.bool(matchUsingPropagation), if this is defined, useMatcher is true
+                                 muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_100files_smoothStdDev_withOvf.root")                                     
+                                )
 
 process.l1MuonAnalyzerOmtfPath = cms.Path(process.L1MuonAnalyzerOmtf)
 
