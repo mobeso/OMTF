@@ -18,9 +18,9 @@ useExtraploationAlgo = True
 version = 't22__'
 
 if useExtraploationAlgo :
-    version = version + 'Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3_gpFinalize10_DTQ_2_2'
+    version = version + 'Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3_gpFinalize10'
 else :
-    version = version + 'Patterns_0x00012_DTQ_2_4'
+    version = version + 'Patterns_0x00012'
 
 runDebug = "INFO" # or "INFO" DEBUG
 #useExtraploationAlgo = True
@@ -157,8 +157,8 @@ if filesNameLike == "EfeMC_HTo2LongLivedTo2mu2jets" :    #<<<<<<<<<<<<<<<<<<<<<<
         {"path": '/eos/cms/store/user/eyigitba/dispDiMu/crabOut/CRAB_PrivateMC/', "fileCnt" : 10000},
         ]   
 
-if filesNameLike == "NeutrinoGun_PU200_Alibordi" :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    cscBx = 8
+if filesNameLike == "NeutrinoGun_PU200_Alibordi" :   
+    cscBx = 8 
     matchUsingPropagation  = False 
     paths = [
         {"path": '/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/NeutrinoGun_PU200_ForRateEstimation/', "fileCnt" : 10000},
@@ -320,10 +320,10 @@ if useExtraploationAlgo :
     process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(10) #valid values are 0, 1, 2, 3, 5
     
     process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
-    process.simOmtfDigis.minDtPhiBQuality = cms.int32(2) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!
+    process.simOmtfDigis.minDtPhiBQuality = cms.int32(4) #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!
 else :
     process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
-    process.simOmtfDigis.minDtPhiBQuality = cms.int32(4) #in 2023 it was 2  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!
+    process.simOmtfDigis.minDtPhiBQuality = cms.int32(2) #in 2023 it was 2, but 4 reduces the rate  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!
          
 #process.simOmtfDigis.stubEtaEncoding = cms.string("valueP1Scale")  
 #process.simOmtfDigis.stubEtaEncoding = cms.string("bits")   
